@@ -83,6 +83,7 @@ export default function ProductList() {
           </div>
         </section>
       ))}
-    </div>
+      </div>
+    </>
   );
 }
