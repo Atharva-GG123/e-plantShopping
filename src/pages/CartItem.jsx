@@ -1,12 +1,18 @@
 import { useDispatch, useSelector } from "react-redux";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { cartActions } from "../store/CartSlice";
 import "./CartItem.css";
 
-export default function CartItem() {
+export default function CartItem({ onContinueShopping }) {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const cartItems = useSelector((state) => state.cart.items);
-  const totalAmount = useSelector((state) => state.cart.totalAmount);
+
+  const totalAmount = cartItems.reduce(
+    (total, item) =>
+      total + Number(item.cost ?? item.price ?? 0) * item.quantity,
+    0
+  );
 
   const handleIncrement = (item) => {
     dispatch(
@@ -19,13 +25,17 @@ export default function CartItem() {
   };
 
   const handleDecrement = (item) => {
-    dispatch(
-      cartActions.updateQuantity({
-        id: item.id,
-        name: item.name,
-        quantity: item.quantity - 1,
-      })
-    );
+    if (item.quantity <= 1) {
+      dispatch(cartActions.removeItem(item.id ?? item.name));
+    } else {
+      dispatch(
+        cartActions.updateQuantity({
+          id: item.id,
+          name: item.name,
+          quantity: item.quantity - 1,
+        })
+      );
+    }
   };
 
   const handleRemove = (item) => {
@@ -36,6 +46,16 @@ export default function CartItem() {
     alert("Coming Soon");
   };
 
+  const handleContinueShopping = (e) => {
+    if (e) e.preventDefault();
+
+    if (onContinueShopping) {
+      onContinueShopping(e);
+    } else {
+      navigate("/products");
+    }
+  };
+
   return (
     <div className="cart-page">
       <h1 className="page-title">Your Shopping Cart</h1>
@@ -44,13 +64,16 @@ export default function CartItem() {
         <div className="empty-cart">
           <h2>Your cart is empty</h2>
           <p>Discover beautiful plants for your home!</p>
-          <Link to="/products" className="get-started-button1">
+          <button
+            className="get-started-button"
+            onClick={handleContinueShopping}
+          >
             Continue Shopping
-          </Link>
+          </button>
         </div>
       ) : (
         <>
-          <div className="cart-items">
+          <div className="cart-container">
             {cartItems.map((item) => (
               <div className="cart-item" key={item.id ?? item.name}>
                 <img
@@ -62,11 +85,14 @@ export default function CartItem() {
                 <div className="item-details">
                   <h3>{item.name}</h3>
                   <p>
-                    Unit Price: ${(item.cost ?? item.price).toFixed(2)}
+                    Unit Price: $
+                    {Number(item.cost ?? item.price ?? 0).toFixed(2)}
                   </p>
                   <p>
                     Subtotal: $
-                    {((item.cost ?? item.price) * item.quantity).toFixed(2)}
+                    {(
+                      Number(item.cost ?? item.price ?? 0) * item.quantity
+                    ).toFixed(2)}
                   </p>
 
                   <div className="quantity-controls">
@@ -76,9 +102,7 @@ export default function CartItem() {
                     >
                       -
                     </button>
-
                     <span>{item.quantity}</span>
-
                     <button
                       onClick={() => handleIncrement(item)}
                       aria-label={`Increase ${item.name} quantity`}
@@ -88,7 +112,7 @@ export default function CartItem() {
                   </div>
 
                   <button
-                    className="remove-button"
+                    className="cart-item-delete"
                     onClick={() => handleRemove(item)}
                   >
                     Delete
@@ -108,9 +132,12 @@ export default function CartItem() {
               Checkout
             </button>
 
-            <Link to="/products" className="continue-shopping">
+            <button
+              className="get-started-button"
+              onClick={handleContinueShopping}
+            >
               Continue Shopping
-            </Link>
+            </button>
           </div>
         </>
       )}
