@@ -56,8 +56,10 @@ export default function CartItem({ onContinueShopping }) {
     }
   };
 
-  return (
-    <div className="cart-page">
+return (
+    <>
+      <Navbar />
+      <div className="cart-page">
       <h1 className="page-title">Your Shopping Cart</h1>
 
       {cartItems.length === 0 ? (
@@ -141,6 +143,7 @@ export default function CartItem({ onContinueShopping }) {
           </div>
         </>
       )}
-    </div>
+      </div>
+    </>
   );
 }
