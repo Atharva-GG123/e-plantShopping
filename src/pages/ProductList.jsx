@@ -50,8 +50,10 @@ export default function ProductList() {
     }));
   };
 
-  return (
-    <div className="product-list">
+ return (
+    <>
+      <Navbar />
+      <div className="product-list">
       <h1 className="page-title">Our Plants Collection</h1>
 
       {Object.entries(products).map(([category, plants]) => (
