@@ -1,20 +1,17 @@
+import { useState } from "react";
 import { Provider } from "react-redux";
-import { BrowserRouter, Routes, Route, useNavigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 import store from "./store/store";
-import Navbar from "./components/Navbar";
 import ProductList from "./pages/ProductList";
 import CartItem from "./pages/CartItem";
 
-function LandingPage() {
-  const navigate = useNavigate();
-
+function Home({ onGetStarted }) {
   return (
-    <div className="home-container">
+    <div className="app-container">
       <h1>Welcome to Paradise Nursery</h1>
-      <p>Discover beautiful plants to bring nature into your home.</p>
       <button
-        className="get-started-button1"
-        onClick={() => navigate("/products")}
+        className="get-started-button"
+        onClick={() => onGetStarted(true)}
       >
         Get Started
       </button>
@@ -23,22 +20,32 @@ function LandingPage() {
 }
 
 function AppContent() {
+  const [showProductList, setShowProductList] = useState(false);
+
   return (
-    <BrowserRouter>
-      <Navbar />
-      <Routes>
-        <Route path="/" element={<LandingPage />} />
-        <Route path="/products" element={<ProductList />} />
-        <Route path="/cart" element={<CartItem />} />
-      </Routes>
-    </BrowserRouter>
+    <Routes>
+      <Route
+        path="/"
+        element={
+          showProductList ? (
+            <ProductList />
+          ) : (
+            <Home onGetStarted={setShowProductList} />
+          )
+        }
+      />
+      <Route path="/products" element={<ProductList />} />
+      <Route path="/cart" element={<CartItem />} />
+    </Routes>
   );
 }
 
 export default function App() {
   return (
     <Provider store={store}>
-      <AppContent />
+      <BrowserRouter>
+        <AppContent />
+      </BrowserRouter>
     </Provider>
   );
 }
